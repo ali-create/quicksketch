@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+
+  "name": "Quick Sketch",
+  "description": "Quickly sketch anything in a extension.",
+  "version": "1.0.0",
+  "icons": { "128": "icon128.png" },
+  "browser_action": {
+    "default_icon": "icon128.png",
+    "default_popup": "index.html"
+  },
+  "permissions": ["activeTab"]
+}

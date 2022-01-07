@@ -1,0 +1,33 @@
+<html>
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <link rel="stylesheet" href="styles.css" />
+      
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Quick Sketch</title>
+    </head>
+  </html>
+  <body>
+    <div class='overlay'><div class='message--box'>no text to display</div></div>
+  <input type='text' class='copy' disabled='true'>
+    <div class="container"><canvas class='canvas' width='600px' height='300px'></div>
+    <br>
+    <div class='thickness_general'>
+
+    <input type="range" class='thickness' min='15' max='55'>
+   
+  
+  </div>
+    <br>
+  <br>
+      <input type='color' class='colorSelect' value="#FF0000">
+      <br>
+      <br>
+      <br>
+    <div class='sketch--loader'><button class="save button">Save</button><button class="load button">Load</button></div>
+      <script src="script.js"></script>
+  </body>
+</html>

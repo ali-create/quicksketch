@@ -9,26 +9,40 @@ const canvas = document.querySelector(".canvas");
 const thickness = document.querySelector(".thickness");
 let mouseX;
 let mouseY;
+let eKeyDown = false;
 let mouseDownCanvas = false;
 let mousePositions = [];
+let undoPos = [];
 
+const booleanFinder = function (text) {
+  if (text[0] == "f") {
+    return false;
+  }
+  if (text[0] == "t") {
+    return true;
+  }
+};
 // exported function for usability
 const saveSketch = function () {
   return mousePositions.toString();
 };
 const drawFunc = function (xf, yf) {
   if (!mouseDownCanvas) return;
+
   mousePositions.push([
     (xf - canvas.getBoundingClientRect().x).toString().padStart(3, 0),
     (yf - canvas.getBoundingClientRect().y).toString().padStart(3, 0),
     thickness.value,
     colorPicker.value,
     mousePositions.length,
+    eKeyDown,
   ]);
   createDotOnCanvas(
     xf - canvas.getBoundingClientRect().x,
-    yf - canvas.getBoundingClientRect().y
+    yf - canvas.getBoundingClientRect().y,
+    eKeyDown
   );
+  undoPos[undoPos["length"] - 1] = undoPos[undoPos["length"] - 1] + 1;
 };
 
 // arr structure
@@ -37,7 +51,7 @@ const loadSketch = function (arr) {
   mousePositions = [];
   let canvasContext2 = canvas.getContext("2d");
   canvasContext2.clearRect(0, 0, 600, 300);
-  const sortedArr = arr.toString().split(",").chunk(5);
+  const sortedArr = arr.toString().split(",").chunk(6);
   sortedArr.forEach((_, i) => {
     thickness.value = sortedArr[i][2];
     colorPicker.value = sortedArr[i][3];
@@ -52,19 +66,29 @@ const loadSketch = function (arr) {
       colorPicker.value,
       mousePositions.length,
     ]);
-    createDotOnCanvas(sortedArr[i][0], sortedArr[i][1]);
+
+    createDotOnCanvas(
+      sortedArr[i][0],
+      sortedArr[i][1],
+      booleanFinder(sortedArr[i][5])
+    );
   });
 };
 // create dot at position
-const createDotOnCanvas = function (x, y) {
-  let canvasContext = canvas.getContext("2d");
-  canvasContext.beginPath();
-  canvasContext.arc(x, y, thickness.value, 0, 2 * Math.PI);
-  canvasContext.strokeStyle = colorPicker.value;
-  canvasContext.stroke();
-  canvasContext.fillStyle = colorPicker.value;
-  canvasContext.fill();
-  canvasContext.closePath();
+const createDotOnCanvas = function (x, y, erase) {
+  if (!erase) {
+    let canvasContext = canvas.getContext("2d");
+    canvasContext.beginPath();
+    canvasContext.arc(x, y, thickness.value, 0, 2 * Math.PI);
+    canvasContext.strokeStyle = colorPicker.value;
+    canvasContext.globalCompositeOperation = "source-over";
+    canvasContext.stroke();
+    canvasContext.fillStyle = colorPicker.value;
+    canvasContext.fill();
+    canvasContext.closePath();
+  } else {
+    eraseCanvas(x, y);
+  }
 };
 
 // get pos of mouse
@@ -79,11 +103,26 @@ const showCoords = function (e) {
 
 // if mouse down then true else false
 canvas.addEventListener("mousedown", () => {
+  if (!mouseDownCanvas) {
+    undoPos.push(0);
+  }
   mouseDownCanvas = true;
+
   clickCount++;
 });
 document.addEventListener("mouseup", () => {
   mouseDownCanvas = false;
+});
+
+document.addEventListener("keypress", function (e) {
+  if ((e = "e")) {
+    eKeyDown = true;
+  }
+});
+document.addEventListener("keyup", function (e) {
+  if ((e = "e")) {
+    eKeyDown = false;
+  }
 });
 
 // update mouse x and y variables
@@ -151,7 +190,6 @@ Array.prototype.chunk = function (size) {
   return result;
 };
 
-// scrapped as it was too buggy
 const eraseCanvas = function (x, y) {
   let canvasContext = canvas.getContext("2d");
   canvasContext.beginPath();
@@ -160,4 +198,9 @@ const eraseCanvas = function (x, y) {
 
   canvasContext.fill();
   canvasContext.stroke();
+};
+
+const undo = function () {
+  loadSketch(mousePositions.slice(undoPos.length - 1).toString());
+  undoPos.pop();
 };
